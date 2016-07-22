@@ -24,7 +24,7 @@ router.get('/new/*', function(req, res, next) {
   let randomId = shortid.generate()
 
   // find if shortId exist before
-  Url.findOne({shortenId: randomId}).exec()
+  Url.findOne({shortenId: randomId})
   .then((existingId) => {
     if(existingId) {
       return res.status(500).send({error: "Sorry our random generator is done the impossible and generate something that's not random. Please refresh and try again"})
@@ -49,12 +49,11 @@ router.get('/new/*', function(req, res, next) {
 /* GET home page. */
 router.get('/*', function(req, res, next) {
   const shortenUrl = req.params[0]
-  const originalUrl = Url.findOne({shortenId: shortenUrl}).exec()
-  if (!originalUrl) {
-    res.send({error: "There's no record of that shorten url on our database."})
-  }
-
-  originalUrl.then((url) => {
+  Url.findOne({shortenId: shortenUrl}).exec()
+  .then((url) => {
+    if (!url) {
+      return res.send({error: "There's no record of that shorten url on our database."})
+    }
     if (url.originalUrl.includes('https://')) {
       return res.redirect(`${url.originalUrl}`)
     }
@@ -64,6 +63,7 @@ router.get('/*', function(req, res, next) {
     return res.redirect(`https://${url.originalUrl}`)
   })
   .catch((err) => {
+    console.log(err)
     res.status(500).send({error: 'Our database is off on holiday, please wait and try again later'})
   })
 });
