@@ -11,9 +11,9 @@ router.get('/', function(req, res, next) {
 });
 
 /* GET users listing. */
-router.get('/*', function(req, res, next) {
+router.get('/url/*', function(req, res, next) {
   let originalUrl = req.params[0]
-  console.log(originalUrl)
+  // console.log(originalUrl)
   // set data for posting to google shorterner api
   let data = { longUrl: originalUrl }
   // set option configs for axios
