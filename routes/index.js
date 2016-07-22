@@ -2,10 +2,8 @@ var express = require('express');
 var router = express.Router();
 const isURL = require('validator/lib/isURL')
 const ourUrl = 'https://kevin-url-shortener.herokuapp.com/'
-const googleApiKey = process.env.GOOGLE_URL_SHORTENER_API_KEY
 const Url = require('../models/url.js')
 const shortid = require('shortid')
-
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -44,6 +42,29 @@ router.get('/new/*', function(req, res, next) {
       original_url: url.originalUrl,
       shorten_url: `${ourUrl}${url.shortenId}`
     })
+  })
+});
+
+
+/* GET home page. */
+router.get('/*', function(req, res, next) {
+  const shortenUrl = req.params[0]
+  const originalUrl = Url.findOne({shortenId: shortenUrl}).exec()
+  if (!originalUrl) {
+    res.send({error: "There's no record of that shorten url on our database."})
+  }
+
+  originalUrl.then((url) => {
+    if (url.originalUrl.includes('https://')) {
+      return res.redirect(`${url.originalUrl}`)
+    }
+    if (url.originalUrl.includes('http://')) {
+      return res.redirect(`${url.originalUrl}`)
+    }
+    return res.redirect(`https://${url.originalUrl}`)
+  })
+  .catch((err) => {
+    res.status(500).send({error: 'Our database is off on holiday, please wait and try again later'})
   })
 });
 
